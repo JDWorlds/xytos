@@ -1,0 +1,1 @@
+DATABASE_URI = "mysql+pymysql://root:smevlms5@localhost/xytos_test"

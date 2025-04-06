@@ -47,16 +47,31 @@ def get_session(id):
     })
 
 
-@api_bp.route('/sessions', methods=['POST'])
-def create_session():
-    data = request.get_json()
-    new_session = TestSession(
-        battery_id=data['battery_id'],
-        equipment_id=data['equipment_id'],
-        profile_id=data['profile_id'],
-        start_time=datetime.now(),
-        result='성공'
-    )
-    db.session.add(new_session)
-    db.session.commit()
-    return jsonify({"message": "Test session created", "id": new_session.id}), 201
+@api_bp.route('/sessions', methods=['GET', 'POST'])
+def handle_sessions():
+    if request.method == 'POST':
+        data = request.get_json()
+        new_session = TestSession(
+            battery_id=data['battery_id'],
+            equipment_id=data['equipment_id'],
+            profile_id=data['profile_id'],
+            start_time=datetime.now(),
+            result='성공'
+        )
+        db.session.add(new_session)
+        db.session.commit()
+        return jsonify({"message": "Test session created", "id": new_session.id}), 201
+
+    elif request.method == 'GET':
+        sessions = TestSession.query.all()
+        return jsonify([
+            {
+                "id": s.id,
+                "battery_id": s.battery_id,
+                "equipment_id": s.equipment_id,
+                "profile_id": s.profile_id,
+                "start_time": s.start_time.isoformat(),
+                "end_time": s.end_time.isoformat() if s.end_time else None,
+            }
+            for s in sessions
+        ])
